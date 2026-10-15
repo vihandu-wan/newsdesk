@@ -1,5 +1,5 @@
 <?php
-echo "PHP is working perfectly!";
+echo "PHP is working perfectly no errors!";
 ?>
 
 
