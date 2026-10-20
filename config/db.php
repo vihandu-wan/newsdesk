@@ -3,7 +3,7 @@
 $host = 'localhost';
 $dbname = 'newsdesk_db';
 $username = 'root';
-$password = '';
+$password = 'Seven';
 
 try {
     $pdo = new PDO(
