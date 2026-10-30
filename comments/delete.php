@@ -28,3 +28,29 @@ if (!$commentId) {
 
 }
 
+try {
+    $stmt = $pdo->prepare("SELECT id, user_id, article_id FROM comments WHERE id = :id");
+    $stmt->execute([':id' => $commentId]);
+    $comment = $stmt->fetch();
+
+    if (!$comment) {
+        $_SESSION['comment_flash'] = ['type' => 'error', 'text' => 'Comment not found.'];
+        header('Location: ../index.php');
+        exit;
+     }
+
+    $isOwner = ((int) $comment['user_id'] === $userId);
+
+    if (!$isOwner && !$isAdmin) {
+        http_response_code(403);
+        die('You are not allowed to delete this comment.');
+        }
+
+    $delete = $pdo->prepare("DELETE FROM comments WHERE id = :id");
+    $delete->execute([':id' => $commentId]);
+
+    $_SESSION['comment_flash'] = ['type' => 'success', 'text' => 'Comment deleted.'];
+
+   }
+
+
