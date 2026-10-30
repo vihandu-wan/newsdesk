@@ -53,4 +53,16 @@ try {
 
    }
 
+   catch (PDOException $e) {
+    $_SESSION['comment_flash'] = ['type' => 'error', 'text' => 'Could not delete the comment.'];
+}
+
+if ($fromAdmin && $isAdmin) {
+    header('Location: ../admin/comments.php');
+  } else
+   {
+    header('Location: ../articles/view.php?id=' . (int) $comment['article_id'] . '#comments');
+}
+exit;
+
 
