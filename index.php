@@ -28,7 +28,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <body>
         <header>
             <div class="bar">
-                <a href="index.php"><img class="logo" src="assets/logo.jpg" alt="NSBM"></a>
+                <a href="index.php"><img class="logo" src="assets/logo.png" alt="NSBM"></a>
                 <a class="brand" href="index.php">NewsDesk</a>
 
                 <nav>
