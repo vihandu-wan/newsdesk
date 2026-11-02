@@ -195,3 +195,19 @@ $comments = $stmt->fetchAll();
                 &middot; <?= e(date('M j, Y g:i A', strtotime($c['commented_at']))) ?>
                 &middot; <span class="badge <?= e($c['status']) ?>"><?= e($c['status']) ?></span>
             </div>
+
+<div class="text"><?= e($c['content']) ?></div>
+
+            
+            <?php foreach (['approved' => 'approve', 'rejected' => 'reject', 'hidden' => 'hide'] as $statusValue => $btnClass): ?>
+            <?php if ($c['status'] !== $statusValue): ?>
+                <form method="post" action="comments.php?status=<?= e($filter) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="comment_id" value="<?= (int) $c['id'] ?>">
+                        <input type="hidden" name="new_status" value="<?= e($statusValue) ?>">
+                        <button type="submit" class="<?= e($btnClass) ?>">
+                            <?= e(ucfirst($btnClass)) ?>
+                    </button>
+                    </form>
+                <?php endif; ?>
+            <?php endforeach; ?>
