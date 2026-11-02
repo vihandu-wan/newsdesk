@@ -22,3 +22,20 @@ function e($text)
 
 $allowedStatuses = ['pending', 'approved', 'rejected', 'hidden'];
 $message = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        http_response_code(403);
+        die('Invalid request.');
+    }
+
+     $commentId = filter_input(INPUT_POST, 'comment_id', FILTER_VALIDATE_INT);
+    $newStatus = $_POST['new_status'] ?? '';
+
+    if ($commentId && in_array($newStatus, $allowedStatuses, true)) {
+         $update = $pdo->prepare("UPDATE comments SET status = :status WHERE id = :id");
+        $update->execute([':status' => $newStatus, ':id' => $commentId]);
+        $message = 'Comment #' . $commentId . ' marked as ' . $newStatus . '.';
+    }
+}
