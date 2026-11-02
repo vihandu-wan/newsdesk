@@ -39,3 +39,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = 'Comment #' . $commentId . ' marked as ' . $newStatus . '.';
     }
 }
+
+if (!empty($_SESSION['comment_flash'])) {
+    $message = $_SESSION['comment_flash']['text'];
+    unset($_SESSION['comment_flash']);
+  }
+
+$filter = $_GET['status'] ?? 'pending';
+if ($filter !== 'all' && !in_array($filter, $allowedStatuses, true)) {
+    $filter = 'pending';
+}
+
+$sql = "SELECT c.id, c.content, c.status, c.commented_at,
+               u.name AS user_name, u.email AS user_email,
+               a.id AS article_id, a.title AS article_title
+        FROM comments c
+        JOIN users u    ON u.id = c.user_id
+        JOIN articles a ON a.id = c.article_id";
+
+$params = [];
+if ($filter !== 'all') {
+    $sql .= " WHERE c.status = :status";
+    $params[':status'] = $filter;
+}
+$sql .= " ORDER BY c.commented_at DESC LIMIT 100";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$comments = $stmt->fetchAll();
+?>
