@@ -211,3 +211,16 @@ $comments = $stmt->fetchAll();
                     </form>
                 <?php endif; ?>
             <?php endforeach; ?>
+
+ <form method="post" action="../comments/delete.php"
+                  onsubmit="return confirm('Delete this comment permanently?');">
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+            <input type="hidden" name="comment_id" value="<?= (int) $c['id'] ?>">
+            <input type="hidden" name="from" value="admin">
+            <button type="submit" class="delete">Delete</button>
+            </form>
+        </div>
+    <?php endforeach; ?>
+ </div>
+    </body>
+</html>
