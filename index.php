@@ -78,6 +78,19 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
 
+            <div class="row">
+                <a class="btn outline small" href="#">Today</a>
+                <a class="btn outline small" href="#">This week</a>
+                <a class="btn outline small" href="#">This month</a>
+                <a class="btn outline small on" href="#">All</a>
+                <select class="auto-width">
+                    <option>All categories</option>
+                    <option>Academic</option>
+                    <option>Events</option>
+                </select>
+            </div>
+
+            
 
 
 
@@ -107,7 +120,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </main>
          <script>
         var slides = document.querySelectorAll(".slide");
-        var curret = 0;
+        var current = 0;
         var timer = setInterval(nextSlide, 4000);
 
         function nextSlide() {
