@@ -42,20 +42,12 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <form class="search-form" action="search.php" method="get">
                     <input class="search" name="q" placeholder="Search news">
                 </form>
-
-                <a class="btn outline small" href="auth/login.php">Log in / Register</a>
-                <a class="avatar-btn guest" href="auth/login.php" title="Log in">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
-                        <circle cx="12" cy="8" r="4"></circle>
-                        <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"></path>
-                    </svg>
-                </a>
+               <a class="login" href="auth/login.php">Log in</a>
             </div>
         </header>
 
         <main>
-            <h2>Latest News</h2>
-
+            
             <?php if (count($articles) === 0): ?>
                 <p>No published news articles yet.</p>
             <?php else: ?>
