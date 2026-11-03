@@ -71,6 +71,52 @@ nav a.on { color: #0053a8; border-color: #00ba2d; }
 }
 .login:hover {color:#00ba2d;}
 
+.slider{
+    position:relative;
+    height:300px;
+    margin-bottom:18px;
+    overflow:hidden;
+    border-radius: 12px;
+    background: linear-gradient(90deg,#00ba2d,#0053a8);
+}
+.slide {
+    display:none;
+    position:absolute;
+    inset: 0;
+}
+.slide.on {display:block;}
+
+.slide img{
+    width:100%;
+    height:100%;
+    object-fit: cover;
+}
+
+.caption {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 30px 20px 14px;
+    color: #fff;
+    font: bold 28px Georgia, serif;
+    background: linear-gradient(transparent, rgba(0,49,147,.85));
+}
+
+.arrow {
+    position: absolute;
+    top: 45%;
+    width: 38px; height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,.9);
+    color: #0053a8;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.arrow.left {left: 10px;}
+.arrow.right {right:10px;}
+
 
 @media (max-width: 1000px) {
     .bar {flex-wrap: nowrap; gap: 8px;}
@@ -83,4 +129,5 @@ nav a.on { color: #0053a8; border-color: #00ba2d; }
 }
 @media (max-width: 560px){
     .bar{flex-wrap:wrap;}
+    .slider{height: 190px;}
 }
