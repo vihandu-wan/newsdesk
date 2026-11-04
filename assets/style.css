@@ -144,6 +144,12 @@ nav a.on { color: #0053a8; border-color: #00ba2d; }
     font-weight: 400;
 
 }
+
+.row form{
+    margin: 0;
+    display:flex;
+    align-items:center;
+}
 .filter:hover{background: #e6f5ee;}
 
 .filter.active{
@@ -165,4 +171,5 @@ nav a.on { color: #0053a8; border-color: #00ba2d; }
 @media (max-width: 560px){
     .bar{flex-wrap:wrap;}
     .slider{height: 190px;}
+    .caption{font-size: 18px;}
 }

@@ -2,6 +2,11 @@
 require_once __DIR__ . '/config/db.php';
 
 $range = $_GET['range'] ?? 'all';
+if (!in_array($range, ['today', 'week', 'month', 'all'])) {
+    $range = 'all';
+}
+$category = $_GET['category'] ?? '';
+
 $extra = "";
 if ($range === 'today') {
     $extra = "AND DATE(articles.created_at) = CURDATE()";
@@ -9,6 +14,12 @@ if ($range === 'today') {
     $extra = "AND articles.created_at >= NOW() - INTERVAL 7 DAY";
 } elseif ($range === 'month') {
     $extra = "AND articles.created_at >= NOW() - INTERVAL 1 MONTH";
+}
+
+$params = [];
+if ($category !== '') {
+    $extra = $extra . " AND categories.name = ?";
+    $params[] = $category;
 }
 
 $sql = "SELECT
@@ -24,8 +35,14 @@ $sql = "SELECT
         $extra
         ORDER BY articles.created_at DESC";
 
-$stmt = $pdo->query($sql);
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$keep = "";
+if ($category !== '') {
+    $keep = "&category=" . urlencode($category);
+}
 ?>
 
 <!DOCTYPE html>
@@ -90,15 +107,22 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
             <div class="row">
-                <a class="filter <?php if ($range === 'today') echo 'active'; ?>" href="index.php?range=today">Today</a>
-                <a class="filter <?php if ($range === 'week') echo 'active'; ?>" href="index.php?range=week">This week</a>
-                <a class="filter <?php if ($range === 'month') echo 'active'; ?>" href="index.php?range=month">This month</a>
-                <a class="filter <?php if ($range === 'all') echo 'active'; ?>" href="index.php">All</a>
-                <select class="filter-select">
-                    <option>All categories</option>
-                    <option>Academic</option>
-                    <option>Events</option>
-                </select>
+                <a class="filter <?php if ($range === 'today') echo 'active'; ?>" href="index.php?range=today<?= $keep ?>">Today</a>
+                <a class="filter <?php if ($range === 'week') echo 'active'; ?>" href="index.php?range=week<?= $keep ?>">This week</a>
+                <a class="filter <?php if ($range === 'month') echo 'active'; ?>" href="index.php?range=month<?= $keep ?>">This month</a>
+                <a class="filter <?php if ($range === 'all') echo 'active'; ?>" href="index.php?range=all<?= $keep ?>">All</a>
+
+
+                <form action="index.php" method="get">
+                    <input type="hidden" name="range" value="<?= htmlspecialchars($range) ?>">
+                    <select class="filter-select" name="category" onchange="this.form.submit()">
+                        <option value="">All categories</option>
+                        <option value="Academic" <?php if ($category === 'Academic') echo 'selected'; ?>>Academic</option>
+                        <option value="Sports"   <?php if ($category === 'Sports')   echo 'selected'; ?>>Sports</option>
+                        <option value="Events"   <?php if ($category === 'Events')   echo 'selected'; ?>>Events</option>
+                        <option value="General"  <?php if ($category === 'General')  echo 'selected'; ?>>General</option>
+                    </select>
+                </form>
             </div>
 
             
@@ -112,7 +136,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             
             <?php if (count($articles) === 0): ?>
-                <p>No published news articles yet.</p>
+                <p>No articles found for this filter.</p>
             <?php else: ?>
                 <?php foreach ($articles as $article): ?>
                     <article>
