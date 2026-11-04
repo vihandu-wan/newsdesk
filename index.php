@@ -1,6 +1,16 @@
 <?php
 require_once __DIR__ . '/config/db.php';
 
+$range = $_GET['range'] ?? 'all';
+$extra = "";
+if ($range === 'today') {
+    $extra = "AND DATE(articles.created_at) = CURDATE()";
+} elseif ($range === 'week') {
+    $extra = "AND articles.created_at >= NOW() - INTERVAL 7 DAY";
+} elseif ($range === 'month') {
+    $extra = "AND articles.created_at >= NOW() - INTERVAL 1 MONTH";
+}
+
 $sql = "SELECT
             articles.id,
             articles.title,
@@ -11,6 +21,7 @@ $sql = "SELECT
         INNER JOIN categories
             ON articles.category_id = categories.id
         WHERE articles.status = 'published'
+        $extra
         ORDER BY articles.created_at DESC";
 
 $stmt = $pdo->query($sql);
@@ -79,11 +90,11 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
             <div class="row">
-                <a class="btn outline small" href="#">Today</a>
-                <a class="btn outline small" href="#">This week</a>
-                <a class="btn outline small" href="#">This month</a>
-                <a class="btn outline small on" href="#">All</a>
-                <select class="auto-width">
+                <a class="filter <?php if ($range === 'today') echo 'active'; ?>" href="index.php?range=today">Today</a>
+                <a class="filter <?php if ($range === 'week') echo 'active'; ?>" href="index.php?range=week">This week</a>
+                <a class="filter <?php if ($range === 'month') echo 'active'; ?>" href="index.php?range=month">This month</a>
+                <a class="filter <?php if ($range === 'all') echo 'active'; ?>" href="index.php">All</a>
+                <select class="filter-select">
                     <option>All categories</option>
                     <option>Academic</option>
                     <option>Events</option>
@@ -118,6 +129,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             <?php endif; ?>
         </main>
+
          <script>
         var slides = document.querySelectorAll(".slide");
         var current = 0;
