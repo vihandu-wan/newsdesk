@@ -1,6 +1,19 @@
 <?php
 require_once __DIR__ . '/config/db.php';
 
+function timeAgo($date) {
+    $seconds = time() - strtotime($date);
+    if ($seconds < 3600)  return floor($seconds / 60) . " min ago";
+    if ($seconds < 86400) return floor($seconds / 3600) . " hours ago";
+    return floor($seconds / 86400) . " days ago";
+}
+
+function summary($text) {
+    return mb_strimwidth(strip_tags($text), 0, 110, "...");
+}
+
+
+
 $range = $_GET['range'] ?? 'all';
 if (!in_array($range, ['today', 'week', 'month', 'all'])) {
     $range = 'all';
@@ -135,23 +148,48 @@ if ($category !== '') {
 
 
             
-            <?php if (count($articles) === 0): ?>
-                <p>No articles found for this filter.</p>
-            <?php else: ?>
-                <?php foreach ($articles as $article): ?>
-                    <article>
-                        <h3><?= htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8') ?></h3>
+            <div class="home">
+                <div>
+                    <?php if (count($articles) === 0): ?>
+                        <p>No articles found for this filter.</p>
+                    <?php else: ?>
+                        <?php
+                        $featured = $articles[0];
+                        $others   = array_slice($articles, 1);?>
 
-                        <p>Category: <?= htmlspecialchars($article['category_name'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <a class="hero" href="article.php?id=<?= (int)$featured['id'] ?>">
+                            <h2><?= htmlspecialchars($featured['title']) ?></h2>
+                            <div class="meta">
+                                <span><?= htmlspecialchars($featured['category_name']) ?></span>
+                                <span>· <?= timeAgo($featured['created_at']) ?></span>
+                            </div>
+                        </a>
 
-                        <p><?= nl2br(htmlspecialchars($article['content'], ENT_QUOTES, 'UTF-8')) ?></p>
+                        <div class="grid">
+                            <?php foreach ($others as $article): ?>
+                                <a class="card" href="article.php?id=<?= (int)$article['id'] ?>">
+                                    <div class="thumb placeholder">Photo</div>
+                                    <h3><?= htmlspecialchars($article['title']) ?></h3>
+                                    <p><?= htmlspecialchars(summary($article['content'])) ?></p>
+                                    <div class="meta">
+                                        <span class="tag"><?= htmlspecialchars($article['category_name']) ?></span>
+                                        <span><?= timeAgo($article['created_at']) ?></span>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
 
-                        <small>Published: <?= htmlspecialchars($article['created_at']) ?></small>
+                <aside class="side">
+                    <h3>Your subscriptions</h3>
+                    <p class="hint">Log in to see your subscriptions.</p>
+                    <a class="filter" href="auth/login.php">Log in</a>
+                 </aside>
 
-                        <hr>
-                    </article>
-                <?php endforeach; ?>
-            <?php endif; ?>
+            </div>
+
+
         </main>
 
          <script>
