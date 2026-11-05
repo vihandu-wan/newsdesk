@@ -144,10 +144,6 @@ if ($category !== '') {
 
 
 
-
-
-
-            
             <div class="home">
                 <div>
                     <?php if (count($articles) === 0): ?>
