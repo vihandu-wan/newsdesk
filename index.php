@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/functions.php';
 
 function timeAgo($date) {
     $seconds = time() - strtotime($date);
@@ -56,7 +56,12 @@ $keep = "";
 if ($category !== '') {
     $keep = "&category=" . urlencode($category);
 }
+
+$pageTitle = 'Home | NSBM NewsDesk'; 
+$activeNav = 'Home';
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

@@ -9,3 +9,10 @@ function timeAgo($date) {
 function summary($text) {
     return mb_strimwidth(strip_tags($text), 0, 110, "...");
 }
+
+function imageSrc($url) {
+    if (preg_match('#^https?://#', $url)) {
+        return $url;                        
+    }
+    return '/newsdesk/' . ltrim($url, '/'); 
+}
