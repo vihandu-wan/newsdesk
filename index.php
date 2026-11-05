@@ -153,7 +153,7 @@ if ($category !== '') {
                         $featured = $articles[0];
                         $others   = array_slice($articles, 1);?>
 
-                        <a class="hero" href="article.php?id=<?= (int)$featured['id'] ?>">
+                        <a class="hero" href="article/view.php?id=<?= (int)$featured['id'] ?>">
                             <h2><?= htmlspecialchars($featured['title']) ?></h2>
                             <div class="meta">
                                 <span><?= htmlspecialchars($featured['category_name']) ?></span>
@@ -163,7 +163,7 @@ if ($category !== '') {
 
                         <div class="grid">
                             <?php foreach ($others as $article): ?>
-                                <a class="card" href="article.php?id=<?= (int)$article['id'] ?>">
+                                <a class="card" href="article/view.php?id=<?= (int)$article['id'] ?>">
                                     <div class="thumb placeholder">Photo</div>
                                     <h3><?= htmlspecialchars($article['title']) ?></h3>
                                     <p><?= htmlspecialchars(summary($article['content'])) ?></p>

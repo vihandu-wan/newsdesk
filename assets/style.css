@@ -199,7 +199,8 @@ main{
     border-radius: 10px;
     padding: 14px;
 }
-card:hover{
+
+.card:hover{
     border-top-color: #0053a8;
     box-shadow:0 4px 14px rgba(0,83,168,.15);
 }
@@ -239,6 +240,25 @@ card:hover{
     padding: 1px 8px;
     font-size: 12px;
     font-weight: bold;
+}
+
+.side{
+    background: #ffffff;
+    border: 1px solid #d4e6df;
+    border-top: 5px solid #0053a8;
+    border-radius: 10px;
+    padding: 14px;
+    height: max-content;
+}
+
+.hint{
+    color:#5a6b7f;
+    font-size: 14px;
+}
+
+.side .filter{
+    display: inline-block;
+    margin-top: 8px;
 }
 
 
