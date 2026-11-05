@@ -1,6 +1,9 @@
 * {box-sizing: content-box;}
 body {
-    margin: 0; font: 16px/1.5 "Segoe UI", Arial ,sans-serif;background:#f4f9f7;color:#0a1f44;
+    margin: 0;
+    font: 16px/1.5 "Segoe UI", Arial ,sans-serif;
+    background:linear-gradient(90deg,#cffafa 25%,#d7ebff,#ffffff);
+    color:#0a1f44;
 }
 
 h1,h2,h3 {
@@ -12,8 +15,13 @@ img {max-width:100%;}
 a {color:#0053a8;}
 [hidden] { display:none !important; }
 
-header {background:#ffffff; position:sticky; top:0; z-index: 5;
-    border-bottom: 5px solid; border-image:linear-gradient(90deg, #00ba2d,#0053a8) 1;
+header {
+        background:linear-gradient(270deg,#cffafa 25%,#d7ebff,#ffffff); 
+    position:sticky; 
+    top:0; 
+    z-index: 5;
+    border-bottom: 5px solid; 
+    border-image:linear-gradient(90deg, #00ba2d,#0053a8) 1;
     box-shadow:0 2px 10px rgba(0,83,168,.15);
 }
 
@@ -75,7 +83,7 @@ nav a.on { color: #0053a8; border-color: #00ba2d; }
 
 .slider{
     position:relative;
-    height:300px;
+    height:400px;
     margin-bottom:18px;
     overflow:hidden;
     border-radius: 12px;
@@ -298,6 +306,9 @@ img.thumb {
     width: 100%; 
     object-fit: cover; 
 }
+
+.bar > a:first-child { flex-shrink: 0; }
+.logo { max-width: none; width: auto; }
 
 @media (max-width: 1000px) {
     .bar {flex-wrap: nowrap; gap: 8px;}

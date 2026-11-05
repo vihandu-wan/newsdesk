@@ -12,7 +12,6 @@ try {
         $password
     );
 
-    echo "Database connection successful!";
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
