@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$conn = new mysqli("localhost", "root", "", "school");
+$conn = new mysqli("localhost", "root", "", "newsdesk_db");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -28,7 +28,6 @@ if (isset($_POST['submit'])) {
     }
 }
 
-// Fetch categories for dropdown
 $categories = $conn->query("SELECT * FROM categories");
 ?>
 

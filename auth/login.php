@@ -16,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     $sql = $conn->prepare("SELECT * FROM users WHERE student_id = ?");
+
     $sql->bind_param("s", $student_id);
     $sql->execute();
 
@@ -26,12 +27,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $message = "Invalid student ID. Please check your ID.";
 
-    } 
-    elseif (!password_verify($password, $user['password'])) {
+    }
+
+    elseif ($password !== $user['password']) {
 
         $message = "Invalid password. Please try again.";
 
-    } 
+    }
+
     else {
 
         $_SESSION['user_id'] = $user['id'];
@@ -42,9 +45,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['degree'] = $user['degree'];
 
         if ($user['role'] == 'admin') {
+
             header("Location: admin_dashboard.php");
+
         } else {
+
             header("Location: dashboard.php");
+
         }
 
         exit();
@@ -80,7 +87,7 @@ $conn->close();
         <input type="password" name="password" id="password" required>
 
         <br><br>
-        
+
         <?php if (!empty($message)): ?>
             <p style="color: red;">
                 <?php echo htmlspecialchars($message); ?>
@@ -90,7 +97,6 @@ $conn->close();
         <input type="submit" value="Login">
 
     </form>
-
 
 </body>
 </html>
