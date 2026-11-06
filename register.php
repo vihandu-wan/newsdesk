@@ -1,21 +1,22 @@
 <?php
 
-$conn= new my sqlz("mysql:host=localhost;dbname=newsdesk","root","" );
+$conn= new mysqli("localhost;=newsdesk","root","" );
 
 $message = "";
 
-if ($_SERVER)["REQUEST_METHOD"] == "POST"{
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name=trim($_POST['name']);
-    $sid=trim($_POST['student_id'])';
+    $student_id=trim($_POST['student_id'])';
     $password=$_POST['password'];
-    $faculty=$_POST['batch'];
+    $faculty=$_POST['faculty'];
+    $batch=$_POST['batch'];
     $degree=$_POST['degree'];
 
-    if ($name=="" or $student_id == "" or $password == "" or $batch == "" or $degree == "" ){
-    $message="Please fill in all fields.';
+    if ($name=="" or $student_id == "" or $password == "" or $faculty == "" or $batch == "" or $degree == "" ){
+        $message="Please fill in all fields.';
 
     }
-    elseif (strlen($student_id)<5){
+    elseif (!ctype_digit($student_id) or strlen($student_id)!=5){
 
         $message="student id must contain at least 5 digits"
     }
@@ -24,7 +25,7 @@ if ($_SERVER)["REQUEST_METHOD"] == "POST"{
 
         $message="Password must contain at least 8 characters"
     }
-    else {
+    else{
          $letter=false;
          $number=false;
 
@@ -36,6 +37,7 @@ if ($_SERVER)["REQUEST_METHOD"] == "POST"{
             if(ctype_digit($password[$i])){
                 $number=true;
             }
+        }
 
         }
 
@@ -48,8 +50,9 @@ if ($_SERVER)["REQUEST_METHOD"] == "POST"{
 
             $message="Password must contain a number;
         }
+        
         else{
-            $sidsafe= mysqli_real_escape_string($conn,$sid);
+            $student_idsafe= mysqli_real_escape_string($conn,$sid);
             $check =$conn->query)
             "SELECT id FREM user WHERE student_id='sidsafe'"
             );
@@ -86,7 +89,7 @@ if ($_SERVER)["REQUEST_METHOD"] == "POST"{
                 if($conn->query($sql)){
                     $message= "Registration Successful!";
                 }else{
-                    $message= "Registration Failed.Please try again.";
+                    $message= "Registration Failed. Please try again.";
                 }
 
             }
