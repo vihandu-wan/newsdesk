@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $student_id = trim($_POST['student_id']);
     $password = $_POST['password'];
 
-    $sql = $conn->prepare("SELECT * FROM user WHERE student_id = ?");
+    $sql = $conn->prepare("SELECT * FROM users WHERE student_id = ?");
     $sql->bind_param("s", $student_id);
     $sql->execute();
 
@@ -69,12 +69,6 @@ $conn->close();
 
     <h2>Log in</h2>
 
-    <?php if (!empty($message)): ?>
-        <p style="color: red;">
-            <?php echo htmlspecialchars($message); ?>
-        </p>
-    <?php endif; ?>
-
     <form method="POST" action="">
 
         <label for="student_id">Student ID:</label>
@@ -86,12 +80,17 @@ $conn->close();
         <input type="password" name="password" id="password" required>
 
         <br><br>
+        
+        <?php if (!empty($message)): ?>
+            <p style="color: red;">
+                <?php echo htmlspecialchars($message); ?>
+            </p>
+        <?php endif; ?>
 
         <input type="submit" value="Login">
 
     </form>
 
-    <p>Don't have an account?</p>
 
 </body>
 </html>
