@@ -1,18 +1,17 @@
 
 <?php
-$host = 'localhost';
-$dbname = 'newsdesk_db';
-$username = 'root';
-$password = 'Seven';
+$host = "localhost";
+$username = "root";
+$password = "";
+$dbname = "newsdesk_db";
 
 try {
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $username,
-        $password
+        "mysql:host=localhost;dbname=newsdesk_db;charset=utf8mb4",
+        "root",
+        ""
     );
 
-    echo "Database connection successful!";
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
