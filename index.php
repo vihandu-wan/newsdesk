@@ -1,217 +1,168 @@
 <?php
-require_once __DIR__ . '/config/db.php';
-require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/init.php';
 
 $range = $_GET['range'] ?? 'all';
-if (!in_array($range, ['today', 'week', 'month', 'all'])) {
+if (!in_array($range, ['today', 'week', 'month', 'all'], true)) {
     $range = 'all';
 }
 $category = $_GET['category'] ?? '';
 
-$extra = "";
-if ($range === 'today') {
-    $extra = "AND DATE(articles.created_at) = CURDATE()";
-} elseif ($range === 'week') {
-    $extra = "AND articles.created_at >= NOW() - INTERVAL 7 DAY";
-} elseif ($range === 'month') {
-    $extra = "AND articles.created_at >= NOW() - INTERVAL 1 MONTH";
-}
-
+$where  = "a.status = 'published'";
 $params = [];
+if ($range === 'today') {
+    $where .= ' AND DATE(a.published_at) = CURDATE()';
+} elseif ($range === 'week') {
+    $where .= ' AND a.published_at >= NOW() - INTERVAL 7 DAY';
+} elseif ($range === 'month') {
+    $where .= ' AND a.published_at >= NOW() - INTERVAL 1 MONTH';
+}
 if ($category !== '') {
-    $extra = $extra . " AND categories.name = ?";
+    $where .= ' AND c.name = ?';
     $params[] = $category;
 }
 
-$sql = "SELECT
-            articles.id,
-            articles.title,
-            articles.content,
-            articles.created_at,
-            categories.name AS category_name
-        FROM articles
-        INNER JOIN categories
-            ON articles.category_id = categories.id
-        WHERE articles.status = 'published'
-        $extra
-        ORDER BY articles.created_at DESC";
-
-$stmt = $pdo->prepare($sql);
+$stmt = $pdo->prepare(
+    "SELECT a.id, a.title, a.content, a.image_url, a.created_at, a.published_at, a.is_featured,
+            c.name AS category_name
+     FROM articles a
+     JOIN categories c ON c.id = a.category_id
+     WHERE $where
+     ORDER BY a.is_featured DESC, a.published_at DESC
+     LIMIT 31"
+);
 $stmt->execute($params);
-$articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$articles = $stmt->fetchAll();
 
-$keep = "";
-if ($category !== '') {
-    $keep = "&category=" . urlencode($category);
+$featured = $articles[0] ?? null;
+$others   = array_slice($articles, 1);
+
+$announcements = $pdo->query(
+    "SELECT id, title, published_at FROM announcements
+     WHERE status = 'published'
+     ORDER BY is_pinned DESC, published_at DESC LIMIT 4"
+)->fetchAll();
+
+$mySubs = [];
+if (is_logged_in()) {
+    $s = $pdo->prepare(
+        'SELECT c.name FROM subscriptions s JOIN categories c ON c.id = s.category_id
+         WHERE s.user_id = ? ORDER BY c.name'
+    );
+    $s->execute([current_user_id()]);
+    $mySubs = $s->fetchAll(PDO::FETCH_COLUMN);
 }
 
-$pageTitle = 'Home | NSBM NewsDesk'; 
+$popular = $pdo->query(
+    "SELECT a.id, a.title, COUNT(v.id) AS views
+     FROM articles a JOIN article_views v ON v.article_id = a.id
+     WHERE a.status = 'published' AND v.viewed_at >= NOW() - INTERVAL 30 DAY
+     GROUP BY a.id, a.title ORDER BY views DESC LIMIT 5"
+)->fetchAll();
+
+$keep = $category !== '' ? '&category=' . urlencode($category) : '';
+
+$pageTitle = 'Home | NSBM NewsDesk';
 $activeNav = 'Home';
-
+include __DIR__ . '/includes/header.php';
 ?>
+<main>
+    <div class="slider" id="slider">
+        <div class="slide on"><img src="<?= url('assets/slide1.jpg') ?>" alt="Campus"><div class="caption">Welcome to NSBM Green University</div></div>
+        <div class="slide"><img src="<?= url('assets/slide2.jpg') ?>" alt="Events"><div class="caption">Upcoming Events</div></div>
+        <div class="slide"><img src="<?= url('assets/slide3.jpg') ?>" alt="Sports"><div class="caption">Sports and Clubs</div></div>
+        <div class="slide"><img src="<?= url('assets/slide4.jpeg') ?>" alt="Academic"><div class="caption">Academic News</div></div>
+        <button class="arrow left" type="button" data-slide="-1" aria-label="Previous slide">&#10094;</button>
+        <button class="arrow right" type="button" data-slide="1" aria-label="Next slide">&#10095;</button>
+    </div>
 
+    <div class="row">
+        <?php foreach (['today' => 'Today', 'week' => 'This week', 'month' => 'This month', 'all' => 'All'] as $key => $label): ?>
+            <a class="filter <?= $range === $key ? 'active' : '' ?>" href="<?= url('index.php?range=' . $key . $keep) ?>"><?= $label ?></a>
+        <?php endforeach; ?>
 
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Home | NSBM NewsDesk</title>
-        <link rel="stylesheet" href="assets/style.css">
-    </head>
+        <form action="<?= url('index.php') ?>" method="get">
+            <input type="hidden" name="range" value="<?= e($range) ?>">
+            <select class="filter-select" name="category" data-autosubmit aria-label="Category">
+                <option value="">All categories</option>
+                <?php foreach (get_categories($pdo) as $cat): ?>
+                    <option value="<?= e($cat['name']) ?>" <?= $category === $cat['name'] ? 'selected' : '' ?>><?= e($cat['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    </div>
 
+    <div class="home">
+        <div>
+            <?php if (!$featured): ?>
+                <div class="empty">No articles found for this filter.</div>
+            <?php else: ?>
+                <a class="hero <?= $featured['image_url'] ? 'with-image' : '' ?>"
+                   href="<?= url('articles/view.php?id=' . (int) $featured['id']) ?>"
+                   <?php if ($featured['image_url']): ?>style="background-image:linear-gradient(90deg,rgba(0,83,168,.92),rgba(0,150,88,.55)),url('<?= e(imageSrc($featured['image_url'])) ?>')"<?php endif; ?>>
+                    <?php if ($featured['is_featured']): ?><span class="pill">Featured</span><?php endif; ?>
+                    <h2><?= e($featured['title']) ?></h2>
+                    <p><?= e(summary($featured['content'], 180)) ?></p>
+                    <div class="meta">
+                        <span><?= e($featured['category_name']) ?></span>
+                        <span>· <?= timeAgo($featured['published_at']) ?></span>
+                    </div>
+                </a>
 
-
-    <body>
-        <header>
-            <div class="bar">
-                <a href="index.php"><img class="logo" src="assets/logo.png" alt="NSBM"></a>
-                <a class="brand" href="index.php">NewsDesk</a>
-
-                <nav>
-                    <a href="index.php" class="on">Home</a>
-                    <a href="categories.php?name=Academic">Academic</a>
-                    <a href="categories.php?name=Sports">Sports / Clubs</a>
-                    <a href="categories.php?name=Events">Events</a>
-                    <a href="categories.php?name=General">General</a>
-                </nav>
-
-                <form class="search-form" action="search.php" method="get">
-                    <input class="search" name="q" placeholder="Search news">
-                </form>
-               <a class="login" href="auth/login.php">Log in</a>
-            </div>
-        </header>
-
-        <main>
-            <div class="slider">
-                <div class="slide on">
-                    <img src="assets/slide1.jpg" alt="Campus">
-                    <div class="caption">Welcome to NSBM Green University</div>
+                <div class="grid">
+                    <?php foreach ($others as $article): ?>
+                        <?php include __DIR__ . '/includes/card.php'; ?>
+                    <?php endforeach; ?>
                 </div>
+            <?php endif; ?>
+        </div>
 
-                <div class="slide">
-                    <img src="assets/slide2.jpg" alt="events">
-                    <div class="caption">Upcoming Events</div>
-                </div>
-
-                <div class="slide">
-                    <img src="assets/slide3.jpg" alt="sports">
-                    <div class="caption">Sports and Clubs</div>
-                </div>
-
-                <div class="slide">
-                    <img src="assets/slide4.jpeg" alt="academic">
-                    <div class="caption">Academic News</div>
-                </div>
-
-
-                <button class="arrow left" onclick="prevSlide()">&#10094;</button>
-                <button class="arrow right" onclick="nextSlide()">&#10095;</button>
-
-            </div>
-
-
-            <div class="row">
-                <a class="filter <?php if ($range === 'today') echo 'active'; ?>" href="index.php?range=today<?= $keep ?>">Today</a>
-                <a class="filter <?php if ($range === 'week') echo 'active'; ?>" href="index.php?range=week<?= $keep ?>">This week</a>
-                <a class="filter <?php if ($range === 'month') echo 'active'; ?>" href="index.php?range=month<?= $keep ?>">This month</a>
-                <a class="filter <?php if ($range === 'all') echo 'active'; ?>" href="index.php?range=all<?= $keep ?>">All</a>
-
-
-                <form action="index.php" method="get">
-                    <input type="hidden" name="range" value="<?= htmlspecialchars($range) ?>">
-                    <select class="filter-select" name="category" onchange="this.form.submit()">
-                        <option value="">All categories</option>
-                        <option value="Academic" <?php if ($category === 'Academic') echo 'selected'; ?>>Academic</option>
-                        <option value="Sports"   <?php if ($category === 'Sports')   echo 'selected'; ?>>Sports</option>
-                        <option value="Events"   <?php if ($category === 'Events')   echo 'selected'; ?>>Events</option>
-                        <option value="General"  <?php if ($category === 'General')  echo 'selected'; ?>>General</option>
-                    </select>
-                </form>
+        <aside>
+            <div class="side">
+                <h3>Your subscriptions</h3>
+                <?php if (!is_logged_in()): ?>
+                    <p class="hint">Log in to follow categories and get a personal feed.</p>
+                    <a class="filter" href="<?= url('auth/login.php') ?>">Log in</a>
+                <?php elseif (!$mySubs): ?>
+                    <p class="hint">You are not following any category yet.</p>
+                    <a class="filter" href="<?= url('subscriptions/categories.php') ?>">Choose categories</a>
+                <?php else: ?>
+                    <div class="row">
+                        <?php foreach ($mySubs as $sub): ?>
+                            <a class="filter" href="<?= url('categories.php?name=' . urlencode($sub)) ?>"><?= e($sub) ?></a>
+                        <?php endforeach; ?>
+                    </div>
+                    <a href="<?= url('subscriptions/index.php') ?>">Open my feed &rarr;</a>
+                <?php endif; ?>
             </div>
 
-            
-
-
-
-
-
-            <div class="home">
-                <div>
-                    <?php if (count($articles) === 0): ?>
-                        <p>No articles found for this filter.</p>
-                    <?php else: ?>
-                        <?php
-                        $featured = $articles[0];
-                        $others   = array_slice($articles, 1);?>
-
-                        <a class="hero" href="article/view.php?id=<?= (int)$featured['id'] ?>">
-                            <h2><?= htmlspecialchars($featured['title']) ?></h2>
-                            <div class="meta">
-                                <span><?= htmlspecialchars($featured['category_name']) ?></span>
-                                <span>· <?= timeAgo($featured['created_at']) ?></span>
-                            </div>
-                        </a>
-
-                        <div class="grid">
-                            <?php foreach ($others as $article): ?>
-                                <a class="card" href="article/view.php?id=<?= (int)$article['id'] ?>">
-                                    <div class="thumb placeholder">Photo</div>
-                                    <h3><?= htmlspecialchars($article['title']) ?></h3>
-                                    <p><?= htmlspecialchars(summary($article['content'])) ?></p>
-                                    <div class="meta">
-                                        <span class="tag"><?= htmlspecialchars($article['category_name']) ?></span>
-                                        <span><?= timeAgo($article['created_at']) ?></span>
-                                    </div>
-                                </a>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <aside class="side">
-                    <h3>Your subscriptions</h3>
-                    <p class="hint">Log in to see your subscriptions.</p>
-                    <a class="filter" href="auth/login.php">Log in</a>
-                 </aside>
-
+            <div class="side">
+                <h3>Announcements</h3>
+                <?php if (!$announcements): ?>
+                    <p class="hint">No announcements right now.</p>
+                <?php else: ?>
+                    <ul class="side-list">
+                        <?php foreach ($announcements as $an): ?>
+                            <li>
+                                <a href="<?= url('announcements/index.php#a' . (int) $an['id']) ?>"><?= e($an['title']) ?></a>
+                                <small><?= timeAgo($an['published_at']) ?></small>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
             </div>
 
-
-        </main>
-
-         <script>
-        var slides = document.querySelectorAll(".slide");
-        var current = 0;
-        var timer = setInterval(nextSlide, 4000);
-
-        function nextSlide() {
-            slides[current].classList.remove("on");
-            current = current + 1;
-            if (current >= slides.length) {
-            current = 0;
-            }
-            slides[current].classList.add("on");
-            restartTimer();
-            }
-
-        function prevSlide() {
-            slides[current].classList.remove("on");
-            current = current - 1;
-            if(current < 0) {
-                current = slides.length - 1;
-            }
-            slides[current].classList.add("on");
-            restartTimer();
-        }
-
-        function restartTimer() {
-            clearInterval(timer);
-            timer = setInterval(nextSlide, 4000);
-        }
-
-    </script>
-
-    </body>
-</html>
+            <?php if ($popular): ?>
+                <div class="side">
+                    <h3>Most read this month</h3>
+                    <ol class="side-list">
+                        <?php foreach ($popular as $p): ?>
+                            <li><a href="<?= url('articles/view.php?id=' . (int) $p['id']) ?>"><?= e($p['title']) ?></a>
+                                <small><?= (int) $p['views'] ?> views</small></li>
+                        <?php endforeach; ?>
+                    </ol>
+                </div>
+            <?php endif; ?>
+        </aside>
+    </div>
+</main>
+<?php include __DIR__ . '/includes/footer.php'; ?>

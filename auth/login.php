@@ -1,102 +1,77 @@
-
 <?php
-session_start();
+require_once __DIR__ . '/../includes/init.php';
 
-$conn = new mysqli("localhost", "root", "", "newsdesk_db");
-
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
+if (is_logged_in()) {
+    redirect(is_admin() ? 'admin/index.php' : 'user/dashboard.php');
 }
 
-$message = "";
+$error = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf();
 
-    $student_id = trim($_POST['student_id']);
-    $password = $_POST['password'];
+    $login    = trim($_POST['login'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    $sql = $conn->prepare("SELECT * FROM users WHERE student_id = ?");
+    if ($login === '' || $password === '') {
+        $error = 'Please enter your email / student ID and password.';
+    } else {
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? OR student_id = ? LIMIT 1');
+        $stmt->execute([$login, $login]);
+        $user = $stmt->fetch();
 
-    $sql->bind_param("s", $student_id);
-    $sql->execute();
-
-    $result = $sql->get_result();
-    $user = $result->fetch_assoc();
-
-    if (!$user) {
-
-        $message = "Invalid student ID. Please check your ID.";
-
-    }
-
-    elseif ($password !== $user['password']) {
-
-        $message = "Invalid password. Please try again.";
-
-    }
-
-    else {
-
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['name'] = $user['name'];
-        $_SESSION['student_id'] = $user['student_id'];
-        $_SESSION['faculty'] = $user['faculty'];
-        $_SESSION['batch'] = $user['batch'];
-        $_SESSION['degree'] = $user['degree'];
-
-        if ($user['role'] == 'admin') {
-
-            header("Location: admin_dashboard.php");
-
+        if (!$user || !password_verify($password, $user['password_hash'])) {
+            $error = 'Incorrect email / student ID or password.';
+        } elseif (!$user['is_active']) {
+            $error = 'This account has been deactivated. Please contact the admin.';
         } else {
+            session_regenerate_id(true);
+            $_SESSION['user_id']    = (int) $user['id'];
+            $_SESSION['name']       = $user['name'];
+            $_SESSION['role']       = $user['role'];
+            $_SESSION['student_id'] = $user['student_id'];
 
-            header("Location: dashboard.php");
+            flash('success', 'Welcome back, ' . $user['name'] . '!');
 
+            $next = $_SESSION['after_login'] ?? '';
+            unset($_SESSION['after_login']);
+            if ($next !== '' && $next[0] === '/' && substr($next, 0, 2) !== '//') {
+                header('Location: ' . $next);
+                exit;
+            }
+            redirect($user['role'] === 'admin' ? 'admin/index.php' : 'user/dashboard.php');
         }
-
-        exit();
     }
-
-    $sql->close();
 }
 
-$conn->close();
+$pageTitle = 'Log in | NSBM NewsDesk';
+include __DIR__ . '/../includes/header.php';
 ?>
+<main>
+    <div class="auth-card">
+        <h1>Log in</h1>
+        <p class="hint">Use your NSBM email or student ID.</p>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newsdesk - Login</title>
-</head>
-
-<body>
-
-    <h2>Log in</h2>
-
-    <form method="POST" action="">
-
-        <label for="student_id">Student ID:</label>
-        <input type="text" name="student_id" id="student_id" required>
-
-        <br><br>
-
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" required>
-
-        <br><br>
-
-        <?php if (!empty($message)): ?>
-            <p style="color: red;">
-                <?php echo htmlspecialchars($message); ?>
-            </p>
+        <?php if ($error): ?>
+            <div class="alert alert-error inline"><?= e($error) ?></div>
         <?php endif; ?>
 
-        <input type="submit" value="Login">
+        <form method="post" class="form" data-validate novalidate>
+            <?= csrf_field() ?>
 
-    </form>
+            <label for="login">Email or student ID</label>
+            <input type="text" id="login" name="login" value="<?= old('login') ?>" required autofocus>
 
-</body>
-</html>
+            <label for="password">Password</label>
+            <div class="password-wrap">
+                <input type="password" id="password" name="password" required>
+                <button type="button" class="show-pass" data-show="password">Show</button>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        </form>
+
+        <p class="hint center">New to NewsDesk? <a href="<?= url('auth/register.php') ?>">Create an account</a></p>
+    </div>
+</main>
+<?php include __DIR__ . '/../includes/footer.php'; ?>
