@@ -1,1 +1,7 @@
 .DS_Store
+Untitled-1.txt
+.env
+/vendor/
+/uploads/*
+!/uploads/.htaccess
+!/uploads/.gitkeep
