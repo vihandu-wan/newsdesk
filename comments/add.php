@@ -1,5 +1,6 @@
 <?php
 <<<<<<< HEAD
+<<<<<<< HEAD
 require_once __DIR__ . '/../includes/init.php';
 
 const NEW_COMMENT_STATUS = 'approved';
@@ -12,6 +13,8 @@ require_login();
 verify_csrf();
 
 =======
+=======
+>>>>>>> origin/UI-and-final
 session_start();
 require_once __DIR__ . '/../db.php';
 const NEW_COMMENT_STATUS='approved';
@@ -31,11 +34,15 @@ if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $tok
 }
 
 $userId    = (int) $_SESSION['user_id'];
+<<<<<<< HEAD
 >>>>>>> origin/newsdesk-admin-panel
+=======
+>>>>>>> origin/UI-and-final
 $articleId = filter_input(INPUT_POST, 'article_id', FILTER_VALIDATE_INT);
 $content   = trim($_POST['content'] ?? '');
 
 if (!$articleId) {
+<<<<<<< HEAD
 <<<<<<< HEAD
     redirect('index.php');
 }
@@ -65,6 +72,8 @@ flash('success', NEW_COMMENT_STATUS === 'approved'
     : 'Your comment is waiting for moderator approval.');
 redirect($back);
 =======
+=======
+>>>>>>> origin/UI-and-final
     header('Location: ../index.php');
     exit;
 }
@@ -123,4 +132,7 @@ try {
 header('Location: ' . $backUrl);
 exit;
 ?>
+<<<<<<< HEAD
 >>>>>>> origin/newsdesk-admin-panel
+=======
+>>>>>>> origin/UI-and-final

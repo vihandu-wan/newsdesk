@@ -1,5 +1,6 @@
 <?php
 <<<<<<< HEAD
+<<<<<<< HEAD
 require_once __DIR__ . '/../includes/init.php';
 require_admin();
 
@@ -22,6 +23,8 @@ if ($filter !== 'all' && !in_array($filter, $allowed, true)) {
 }
 $q = trim($_GET['q'] ?? '');
 =======
+=======
+>>>>>>> origin/UI-and-final
 session_start();
 require_once __DIR__ . '/../db.php';
 
@@ -72,13 +75,17 @@ $filter = $_GET['status'] ?? 'pending';
 if ($filter !== 'all' && !in_array($filter, $allowedStatuses, true)) {
     $filter = 'pending';
 }
+<<<<<<< HEAD
 >>>>>>> origin/newsdesk-admin-panel
+=======
+>>>>>>> origin/UI-and-final
 
 $sql = "SELECT c.id, c.content, c.status, c.commented_at,
                u.name AS user_name, u.email AS user_email,
                a.id AS article_id, a.title AS article_title
         FROM comments c
         JOIN users u    ON u.id = c.user_id
+<<<<<<< HEAD
 <<<<<<< HEAD
         JOIN articles a ON a.id = c.article_id
         WHERE 1 = 1";
@@ -94,6 +101,8 @@ if ($q !== '') {
 }
 $sql .= ' ORDER BY c.commented_at DESC LIMIT 100';
 =======
+=======
+>>>>>>> origin/UI-and-final
         JOIN articles a ON a.id = c.article_id";
 
 $params = [];
@@ -102,11 +111,15 @@ if ($filter !== 'all') {
     $params[':status'] = $filter;
 }
 $sql .= " ORDER BY c.commented_at DESC LIMIT 100";
+<<<<<<< HEAD
 >>>>>>> origin/newsdesk-admin-panel
+=======
+>>>>>>> origin/UI-and-final
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $comments = $stmt->fetchAll();
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 $pageTitle = 'Comment moderation';
@@ -161,6 +174,8 @@ include __DIR__ . '/_header.php';
 <?php endforeach; ?>
 <?php include __DIR__ . '/_footer.php'; ?>
 =======
+=======
+>>>>>>> origin/UI-and-final
 ?>
 
 <html>
@@ -318,4 +333,7 @@ include __DIR__ . '/_header.php';
  </div>
     </body>
 </html>
+<<<<<<< HEAD
 >>>>>>> origin/newsdesk-admin-panel
+=======
+>>>>>>> origin/UI-and-final

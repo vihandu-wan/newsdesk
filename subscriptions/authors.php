@@ -1,5 +1,6 @@
 <?php
 <<<<<<< HEAD
+<<<<<<< HEAD
 require_once __DIR__ . '/../includes/init.php';
 require_login();
 
@@ -80,6 +81,8 @@ include __DIR__ . '/../includes/header.php';
 </main>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
 =======
+=======
+>>>>>>> origin/UI-and-final
 session_start();
 
 if(!isset($_SESSION['user_id'])){
@@ -206,5 +209,9 @@ $authors = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endif; ?>
 </body>
 
+<<<<<<< HEAD
 </html>
 >>>>>>> origin/newsdesk-admin-panel
+=======
+</html>
+>>>>>>> origin/UI-and-final

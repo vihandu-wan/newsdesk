@@ -1,5 +1,6 @@
 <?php
 <<<<<<< HEAD
+<<<<<<< HEAD
 require_once __DIR__ . '/../includes/init.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -33,6 +34,8 @@ if ($fromAdmin && is_admin()) {
 }
 redirect('articles/view.php?id=' . (int) $comment['article_id'] . '#comments');
 =======
+=======
+>>>>>>> origin/UI-and-final
 session_start();
 require_once __DIR__ . '/../db.php';
 
@@ -100,4 +103,7 @@ if ($fromAdmin && $isAdmin) {
 exit;
 
 
+<<<<<<< HEAD
 >>>>>>> origin/newsdesk-admin-panel
+=======
+>>>>>>> origin/UI-and-final

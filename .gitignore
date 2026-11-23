@@ -2,4 +2,10 @@
 Untitled-1.txt
 .env
 /vendor/
+<<<<<<< HEAD
 /uploads/
+=======
+/uploads/*
+!/uploads/.htaccess
+!/uploads/.gitkeep
+>>>>>>> origin/UI-and-final
