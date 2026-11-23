@@ -324,10 +324,6 @@ img.thumb {
     .slider{height: 190px;}
     .caption{font-size: 18px;}
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/UI-and-final
 :root {
     --blue: #0053a8; --navy: #003193; --green: #00ba2d; --teal: #009658;
     --text: #0a1f44; --muted: #5a6b7f; --line: #d4e6df; --bg-soft: #f4f9f7;
@@ -453,8 +449,6 @@ aside > .side { margin-bottom: 16px; }
     .form-grid { grid-template-columns: 1fr; }
     .auth-card { padding: 20px; margin: 10px auto; }
 }
-<<<<<<< HEAD
-=======
 
 .article-tools { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
 .article-tools form { margin: 0; }
@@ -580,4 +574,3 @@ button[disabled] { opacity: .45; cursor: not-allowed; }
     .admin-main { padding: 0; }
     .panel { break-inside: avoid; }
 }
->>>>>>> origin/UI-and-final
