@@ -18,7 +18,7 @@ if ($id <= 0) {
     die("Please provide a valid article ID. Example: edit.php?id=1");
 }
 
-// An author can edit their own article. An admin can edit any article.
+
 if ($is_admin) {
     $stmt = $conn->prepare("SELECT * FROM articles WHERE id = ?");
     $stmt->bind_param("i", $id);

@@ -2,7 +2,7 @@
 session_start();
 require_once "../db.php";
 
-// Only logged-in users can create articles.
+
 if (!isset($_SESSION["user_id"])) {
     die("Please log in first.");
 }
