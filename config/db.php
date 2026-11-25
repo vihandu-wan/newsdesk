@@ -1,10 +1,12 @@
-<?php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'newsdesk_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
 
-define('BASE_URL', '/newsdesk');
+<?php
+
+define('DB_HOST', 'sql205.infinityfree.com');
+define('DB_NAME', 'if0_43530375_newsdesk');
+define('DB_USER', 'if0_43530375');
+define('DB_PASS', 'PASTE_YOUR_INFINITYFREE_MYSQL_PASSWORD');
+
+define('BASE_URL', '');
 
 try {
     $pdo = new PDO(
@@ -17,6 +19,7 @@ try {
             PDO::ATTR_EMULATE_PREPARES   => false,
         ]
     );
+
 } catch (PDOException $e) {
     error_log($e->getMessage());
     die('Database connection failed. Please try again later.');
